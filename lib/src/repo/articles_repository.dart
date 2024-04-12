@@ -65,6 +65,7 @@ class ArticlesRepository {
         (value) => value.data(),
       );
 
+  /// A shortcut for firestoreInstance.doc() function
   Future<DocumentSnapshot<Map<String, dynamic>>> getRawDoc(String path) async =>
       await firestoreInstance.doc('$collection/$path').get();
 
@@ -74,6 +75,7 @@ class ArticlesRepository {
   }
 }
 
+/// A class containing repo settings
 class RepoSetUp {
   static const String highLight = 'highLight';
 }

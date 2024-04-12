@@ -6,6 +6,7 @@ import 'package:markdown_widget/markdown_widget.dart';
 import "../../firebase_article.dart";
 
 // the Ui responsible for rendering article
+//todo: update to ahl_remake ArticleView
 class ArticleView extends StatelessWidget {
   const ArticleView({super.key, this.args, required this.firestore});
 
