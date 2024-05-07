@@ -56,7 +56,8 @@ class ArticlesRepository {
     final String highlightedArticleDoc = await setUp.then<String>(
       (value) {
         if (value == null) {
-          throw UnableToGetSetup('setup object is $value');
+          throw UnableToGetSetup(
+              '[FirebaseArticlesRepository]: Error getting Setup: setup object is $value');
         }
         return value[RepoSetUp.highLight] as String;
       },
@@ -66,14 +67,111 @@ class ArticlesRepository {
   }
 
   /// return a map string object containing setup
-  Future<Map<String, dynamic>?> get setUp async =>
-      await getRawDoc(setUpDoc).then<Map<String, dynamic>?>(
+  Future<Map<String, dynamic>?> get setUp async {
+    try{
+      Map<String,dynamic>? setup = await getRawDoc(setUpDoc).then<Map<String, dynamic>?>(
         (value) => value.data(),
-      );
+      );if (setup == null) {
+        var error = UnableToGetSetup('Setup is null.');
+        developer.log('Error getting setup: $error');
+        throw error;
+      }}catch (e){
+        developer.log('[Firebase_article]: Unable to get setup: $e');
+      }}
 
   /// A shortcut for firestoreInstance.doc() function
-  Future<DocumentSnapshot<Map<String, dynamic>>> getRawDoc(String path) async =>
-      await firestoreInstance.doc('$collection/$path').get();
+  Future<DocumentSnapshot<Map<String, dynamic>>> getRawDoc(String path) async {
+    return await firestoreInstance
+        .doc(
+          '$collection/$path',
+        )
+        .get();
+  }
+
+  Future<List<Article>?> getArticlesSubListByLength(int length) async {
+    try {
+      // Getting setup
+      Map<String, dynamic>? setup = await setUp;
+
+      // end execution when setup is empty
+      if(setup != null){
+        // Building selected Titles
+        List<String> articleIds = setup[RepoSetUp.ids];
+        List<String>? selectedIds = [];
+
+        int minimum = min(length, articleIds.length);
+
+        for (int i = 0; i < minimum; i++) {
+          selectedIds.add(
+            articleIds.elementAt(
+              Random().nextInt(articleIds.length),
+            ),
+          );
+        }
+
+        // filling articles with article
+        // filling articles with article
+        return await _getArticleFromList(selectedIds);
+      }
+    } on UnableToGetSetup catch (e) {
+      developer.log('Error getting setup: $e');
+      rethrow;
+    } catch (e) {
+      developer.log('Error getting articles: $e');
+    }
+    return null;
+  }
+
+  Future<List<Article>?> getArticlesSubListByIds(List<String> ids) async {
+    try {
+      // Getting setup
+      Map<String, dynamic>? setup = await setUp;
+
+      // end execution when setup is empty
+      if (setup == null) {
+        var error = UnableToGetSetup('Setup is null.');
+        developer.log('Error getting setup: $error');
+        throw error;
+      } else {
+        // Building selected Titles
+        List<String> allIds = setup[RepoSetUp.ids];
+        List<String>? selectedIds = [];
+
+        // int minimum = min(length, articleTitles.length);
+
+        ids.forEach(
+          (element) {
+            if (allIds.contains(element)) {
+              selectedIds.add(element);
+            }
+          },
+        );
+
+        // filling articles with article
+        return await _getArticleFromList(selectedIds);
+      }
+    } on UnableToGetSetup catch (e) {
+      developer.log('Error getting setup: $e');
+      rethrow;
+    } catch (e) {
+      developer.log('Error getting articles: $e');
+    }
+    return null;
+  }
+
+  Future<List<Article>?> _getArticleFromList(List<String> selectedIds) async {
+    List<Article>? articles = [];
+    for (String articleTitle in selectedIds) {
+      Article? article = await getArticleByName(
+        articleTitle: articleTitle,
+      );
+      if (article != null) {
+        articles.add(article);
+      }
+    }
+
+    return articles;
+  }
 
   /// Rebuild article from a doc.result
   Article? buildArticleFromDoc(Map<String, dynamic> map) {
@@ -83,7 +181,13 @@ class ArticlesRepository {
 
 /// A class containing repo settings
 class RepoSetUp {
+  /// highlighted article key
   static const String highLight = 'highLight';
+
+  /// All articles key.
+  ///
+  /// The value of this key is a [List<String>]
+  static const String ids = 'articles';
 }
 
 /// Raised when firestore doesn't contain any valid setupDocument
@@ -95,6 +199,4 @@ class UnableToGetSetup extends Error {
 
   @override
   String toString() => 'Unable to get Setup: $message';
-
-  
 }
