@@ -1,5 +1,11 @@
 part of '../../firebase_article.dart';
 
+/// The repository setup will look like this:
+/// /articles
+///         ./setup
+///         ./some_article
+///                     ./some_article_doc
+
 /// Firestore instance to be used.
 
 class ArticlesRepository {
