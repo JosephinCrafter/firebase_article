@@ -19,12 +19,20 @@ class Article {
 
   /// Build an Article from doc.
   /// These properties can all be null
-  Article.fromDoc(Map<String, dynamic> doc)
-      : id = doc[idKey],
-        title = doc[titleKey],
-        releaseDate = doc[releaseDateKey],
-        contentPath = doc[contentKey],
-        relations = doc[relationsKey];
+  factory Article.fromDoc(Map<String, dynamic> doc) {
+    List<Map<String, dynamic>> relations = <Map<String, dynamic>>[];
+
+    final mapsField = doc[relationsKey] as List<dynamic>;
+    relations
+        .addAll(mapsField.cast<Map<String, dynamic>>()); //doc[relationsKey]
+    return Article(
+      id: doc[idKey],
+      title: doc[titleKey],
+      releaseDate: doc[releaseDateKey],
+      contentPath: doc[contentKey],
+      relations: relations,
+    );
+  }
 
   /// An unique way to specify an article or data
   final String id;

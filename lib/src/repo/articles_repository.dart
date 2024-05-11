@@ -68,16 +68,22 @@ class ArticlesRepository {
 
   /// return a map string object containing setup
   Future<Map<String, dynamic>?> get setUp async {
-    try{
-      Map<String,dynamic>? setup = await getRawDoc(setUpDoc).then<Map<String, dynamic>?>(
+    Map<String, dynamic>? setup;
+    try {
+      setup = await getRawDoc(setUpDoc).then<Map<String, dynamic>?>(
         (value) => value.data(),
-      );if (setup == null) {
+      );
+      if (setup == null) {
         var error = UnableToGetSetup('Setup is null.');
         developer.log('Error getting setup: $error');
         throw error;
-      }}catch (e){
-        developer.log('[Firebase_article]: Unable to get setup: $e');
-      }}
+      }
+      return setup;
+    } catch (e) {
+      developer.log('[Firebase_article]: Unable to get setup: $e');
+    }
+    return null;
+  }
 
   /// A shortcut for firestoreInstance.doc() function
   Future<DocumentSnapshot<Map<String, dynamic>>> getRawDoc(String path) async {
@@ -93,8 +99,8 @@ class ArticlesRepository {
       // Getting setup
       Map<String, dynamic>? setup = await setUp;
 
-      // end execution when setup is empty
-      if(setup != null){
+      //  end execution  when setup is empty
+      if (setup != null) {
         // Building selected Titles
         List<String> articleIds = setup[RepoSetUp.ids];
         List<String>? selectedIds = [];
@@ -130,7 +136,7 @@ class ArticlesRepository {
       // end execution when setup is empty
       if (setup == null) {
         var error = UnableToGetSetup('Setup is null.');
-        developer.log('Error getting setup: $error');
+        developer.log('[Firebase_article]: Error getting setup: $error');
         throw error;
       } else {
         // Building selected Titles
@@ -188,6 +194,12 @@ class RepoSetUp {
   ///
   /// The value of this key is a [List<String>]
   static const String ids = 'articles';
+
+  /// Cover image key
+  static const String coverImageKey = 'cover_image';
+
+  /// preview
+  static const String previewKey = 'preview';
 }
 
 /// Raised when firestore doesn't contain any valid setupDocument
