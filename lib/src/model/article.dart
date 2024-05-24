@@ -8,7 +8,7 @@ const String contentKey = 'content';
 const String relationsKey = 'relations';
 const String idKey = 'id';
 
-class Article {
+class Article implements Docable {
   const Article({
     required this.id,
     this.title,

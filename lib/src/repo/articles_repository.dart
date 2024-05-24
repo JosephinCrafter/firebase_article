@@ -4,11 +4,11 @@ part of '../../firebase_article.dart';
 /// /articles
 ///         ./setup
 ///         ./some_article
-///                     ./some_article_doc
+///                     ./some_article_docs
 
 /// Firestore instance to be used.
 
-class ArticlesRepository {
+class ArticlesRepository<T extends Article> {
   /// The repository of articles.
   ///
   /// [collection] is the string name of the collection in firestore.
@@ -34,7 +34,7 @@ class ArticlesRepository {
   final String collection;
 
   /// Return a fully formed article given it's articleTitle
-  Future<Article?> getArticleByName({required String articleTitle}) async {
+  Future<T?> getArticleByName({required String articleTitle}) async {
     DocumentSnapshot<Map<String, dynamic>> result =
         await getRawDoc(articleTitle);
     Map<String, dynamic>? map = result.data();
@@ -45,12 +45,12 @@ class ArticlesRepository {
   }
 
   @Deprecated("Use getHighlighted instead")
-  Future<Article?> getArticleOfTheMonth() async {
+  Future<T?> getArticleOfTheMonth() async {
     return getHighlighted();
   }
 
   /// Get the highlighted article.
-  Future<Article?> getHighlighted() async {
+  Future<T?> getHighlighted() async {
     // First, read setup to get the document name of the currently highlighted
     // article.
     final String highlightedArticleDoc = await setUp.then<String>(
@@ -94,7 +94,7 @@ class ArticlesRepository {
         .get();
   }
 
-  Future<List<Article>?> getArticlesSubListByLength(int length) async {
+  Future<List<T?>?> getArticlesSubListByLength(int length) async {
     try {
       // Getting setup
       Map<String, dynamic>? setup = await setUp;
@@ -102,16 +102,15 @@ class ArticlesRepository {
       //  end execution  when setup is empty
       if (setup != null) {
         // Building selected Titles
-        List<String> articleIds = setup[RepoSetUp.ids];
+        List<String> articleIds =
+            (setup[RepoSetUp.ids] as List<dynamic>).cast<String>();
         List<String>? selectedIds = [];
 
         int minimum = min(length, articleIds.length);
 
         for (int i = 0; i < minimum; i++) {
           selectedIds.add(
-            articleIds.elementAt(
-              Random().nextInt(articleIds.length),
-            ),
+            articleIds.elementAt(i),
           );
         }
 
@@ -128,7 +127,7 @@ class ArticlesRepository {
     return null;
   }
 
-  Future<List<Article>?> getArticlesSubListByIds(List<String> ids) async {
+  Future<List<T>?> getArticlesSubListByIds(List<String> ids) async {
     try {
       // Getting setup
       Map<String, dynamic>? setup = await setUp;
@@ -140,7 +139,8 @@ class ArticlesRepository {
         throw error;
       } else {
         // Building selected Titles
-        List<String> allIds = setup[RepoSetUp.ids];
+        List<String> allIds =
+            (setup[RepoSetUp.ids] as List<dynamic>).cast<String>();
         List<String>? selectedIds = [];
 
         // int minimum = min(length, articleTitles.length);
@@ -165,10 +165,10 @@ class ArticlesRepository {
     return null;
   }
 
-  Future<List<Article>?> _getArticleFromList(List<String> selectedIds) async {
-    List<Article>? articles = [];
+  Future<List<T>?> _getArticleFromList(List<String> selectedIds) async {
+    List<T>? articles = [];
     for (String articleTitle in selectedIds) {
-      Article? article = await getArticleByName(
+      T? article = await getArticleByName(
         articleTitle: articleTitle,
       );
       if (article != null) {
@@ -180,8 +180,9 @@ class ArticlesRepository {
   }
 
   /// Rebuild article from a doc.result
-  Article? buildArticleFromDoc(Map<String, dynamic> map) {
-    return Article.fromDoc(map);
+  T? buildArticleFromDoc(Map<String, dynamic> map) {
+    
+    return Article.fromDoc(map) as T;
   }
 }
 
@@ -190,7 +191,7 @@ class RepoSetUp {
   /// highlighted article key
   static const String highLight = 'highLight';
 
-  /// All articles key.
+  /// All articles key: 'articles'.
   ///
   /// The value of this key is a [List<String>]
   static const String ids = 'articles';
@@ -211,4 +212,8 @@ class UnableToGetSetup extends Error {
 
   @override
   String toString() => 'Unable to get Setup: $message';
+}
+
+abstract class Docable {
+  Docable.fromDoc(Map map);
 }
