@@ -1,6 +1,6 @@
 name: firebase_article
 description: "A package that provide an Article model and an ArticleRepository hosten in firebase firestore and storage."
-version: 0.1.0
+version: 0.1.2
 homepage: none
 
 environment:
