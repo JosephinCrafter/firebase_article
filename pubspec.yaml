@@ -1,6 +1,36 @@
 name: firebase_article
-description: "A new Flutter package project."
-version: 0.0.1
+description: "Firebase article help setup blog articles in firebase firestore and storage.
+              In order to make firebase_article functional, the architecture of the firebase
+              firestore and cloud storage should be the following:
+              
+              - firestore: 
+              [article_collection_name]/[article_name]/{
+                                                        'id':article_name,
+                                                        'title':title,
+                                                        'content':content.md,
+                                                        'releaseDate':2024-05-08,
+                                                        'relations':[
+                                                                      {
+                                                                        'cover_image':cover_image.jpg
+                                                                      }
+                                                                    ]
+                                                        } 
+                Here:
+                  - [article_collection_name] is the name of the collection where articles are stored.
+                      It should be provided in [ArticleRepository] as collection argument if different from 'articles'.
+                  - [article_name] is the id of the article and the name of the doc in firestore for the article.
+                  - [relations] is an array that handle all optional metadata relative to the article like: (here) the
+                    cover image of the article, or a list of related articles, or the article author.
+                  - content.md, cover_image.jpg are files stored in cloud storage as follow:
+
+              - cloud Storage:
+              [article_collection_name]
+                - [article_name]/
+                  - content.md
+                  - cover_image.jpg
+                  - ...
+                "
+version: 0.1.1
 homepage: none
 
 environment:
@@ -24,6 +54,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
+  fake_cloud_firestore: 
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

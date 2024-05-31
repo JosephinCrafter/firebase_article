@@ -19,6 +19,8 @@ class ArticlesRepository<T extends Article> {
     required this.firestoreInstance,
   });
 
+  Map<String, T?> memoryCachedArticles = {};
+
   /// Name of Setup Document.
   ///
   /// Setup Document contain the article management setup like
@@ -33,15 +35,35 @@ class ArticlesRepository<T extends Article> {
   /// The String name of the Firebase collection to be used.
   final String collection;
 
+  @Deprecated("""Since name doesn't relate to a property of an article, this method 
+              has changed to [getArticleById]""")
+  Future<T?> getArticleByName({required String articleName}) async {
+    return getArticleById(articleId: articleName);
+  }
+
   /// Return a fully formed article given it's articleTitle
-  Future<T?> getArticleByName({required String articleTitle}) async {
+  Future<T?> getArticleById({required String articleId}) async {
+    // If [articleTitle] is a [memoryCachedArticles], then return the article in it
+    T? articleInMemory = memoryCachedArticles[articleId];
+    if (articleInMemory != null) {
+      return articleInMemory;
+    }
+
+    // else, get the article from firebase.
     DocumentSnapshot<Map<String, dynamic>> result =
-        await getRawDoc(articleTitle);
+        await getRawDoc(articleId);
     Map<String, dynamic>? map = result.data();
     if (map == null) {
       return null;
     }
-    return buildArticleFromDoc(map);
+
+    // build [articleInMemory] from the firebase result.
+    articleInMemory = buildArticleFromDoc(map);
+
+    // add it to memoryCachedArticles
+    memoryCachedArticles.addAll({articleId: articleInMemory});
+
+    return articleInMemory;
   }
 
   @Deprecated("Use getHighlighted instead")
@@ -63,7 +85,7 @@ class ArticlesRepository<T extends Article> {
       },
     );
 
-    return await getArticleByName(articleTitle: highlightedArticleDoc);
+    return await getArticleById(articleId: highlightedArticleDoc);
   }
 
   /// return a map string object containing setup
@@ -168,8 +190,8 @@ class ArticlesRepository<T extends Article> {
   Future<List<T>?> _getArticleFromList(List<String> selectedIds) async {
     List<T>? articles = [];
     for (String articleTitle in selectedIds) {
-      T? article = await getArticleByName(
-        articleTitle: articleTitle,
+      T? article = await getArticleById(
+        articleId: articleTitle,
       );
       if (article != null) {
         articles.add(article);
@@ -181,7 +203,6 @@ class ArticlesRepository<T extends Article> {
 
   /// Rebuild article from a doc.result
   T? buildArticleFromDoc(Map<String, dynamic> map) {
-    
     return Article.fromDoc(map) as T;
   }
 }

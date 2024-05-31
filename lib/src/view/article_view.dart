@@ -21,7 +21,7 @@ class ArticleView extends StatelessWidget {
         ArticlesRepository(firestoreInstance: firestore);
     if (kDebugMode) {
       print(
-        await helper.getArticleByName(articleTitle: articleTitle),
+        await helper.getArticleById(articleId: articleTitle),
       );
     }
   }
