@@ -85,7 +85,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    ArticlesRepository repo = ArticlesRepository(firestoreInstance: _firestore);
+    ArticlesRepository repo = ArticlesRepository<Article>(firestoreInstance: _firestore);
     return Scaffold(
       body: FutureBuilder(
         future: repo.getHighlighted(),
