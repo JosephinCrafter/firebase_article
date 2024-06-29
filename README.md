@@ -11,8 +11,21 @@ and the Flutter guide for
 [developing packages and plugins](https://flutter.dev/developing-packages).
 -->
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+This flutter package is helper for managing an article based website backed by
+firebase.
+It combines firebase firestore (managing methadata used to build Article model)
+and and cloud storage ( hosting for example markdown files and images in the article).
+
+The organisation of firestore should be as follow:
+  - root/
+      - articles/
+                /some_article_title_as_firebase_doc_name/
+                                                        /title
+                                                        /id
+                                                        /the_name_of_the_article_file_in_firebase_storage
+                                                        /releaseDate
+                                                        /relation_is_an_array_of_other_property_that_the_article_have
+  
 
 ## Features
 
