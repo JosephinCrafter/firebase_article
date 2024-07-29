@@ -49,7 +49,9 @@ void main() {
   test(
     'ArticleId based highlight articles is working',
     () async {
-      fakeFirestore.doc('/articles/setup').set({"highLight": 'high_light_article'});
+      fakeFirestore
+          .doc('/articles/setup')
+          .set({"highLight": 'high_light_article'});
 
       fakeFirestore.doc('/articles/high_light_article').set({
         'id': 'high_light_article',
@@ -58,6 +60,37 @@ void main() {
       Article? idHighLightArticle = await repo.getHighlighted();
 
       expect(idHighLightArticle!.id, 'high_light_article');
+    },
+  );
+
+  group(
+    'Highlight Collection',
+    () {
+      test(
+        'Getting Highlight collection with path',
+        () async {
+          fakeFirestore
+              .doc('/articles/setup')
+              .update({'highLight': '/novena/saint_dominic_jour_1'});
+
+          String? highlightCollection = await repo.getHighlightedCollection();
+
+          expect(highlightCollection, '/novena');
+        },
+      );
+
+      test(
+        'Getting Highlight collection with id',
+        () async {
+          fakeFirestore
+              .doc('/articles/setup')
+              .update({'highLight': 'saint_dominic_jour_1'});
+
+          String? highlightCollection = await repo.getHighlightedCollection();
+
+          expect(highlightCollection, '/articles');
+        },
+      );
     },
   );
 }

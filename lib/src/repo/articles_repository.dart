@@ -21,6 +21,9 @@ class ArticlesRepository<T extends Article> {
 
   Map<String, T?> memoryCachedArticles = {};
 
+  /// Highlighted article path
+  String? highlightedArticlePath;
+
   /// Name of Setup Document.
   ///
   /// Setup Document contain the article management setup like
@@ -94,6 +97,36 @@ class ArticlesRepository<T extends Article> {
       return await getArticleByPath(path: highlightedArticleDoc);
     } else {
       return await getArticleById(articleId: highlightedArticleDoc);
+    }
+  }
+
+  /// cache key for highlighted path
+  String highlightedPathKey = 'highlighted_path_key';
+
+  /// get highlighted path
+  Future<String?> getHighlightedPath() async {
+    Map<String, dynamic>? setup = await setUp;
+
+    if (setup == null) {
+      return null;
+    } else {
+      return highlightedArticlePath =  setup[RepoSetUp.highLight];
+    }
+  }
+
+  /// get highlighted collection
+  Future<String?> getHighlightedCollection() async {
+    String? highlightedPath = await getHighlightedPath();
+    if (highlightedPath == null) {
+      return null;
+    } else {
+      if (!highlightedPath.contains('/')) {
+        return this.collection;
+      }
+      return highlightedPath.substring(
+        0,
+        highlightedPath.lastIndexOf('/'),
+      );
     }
   }
 
