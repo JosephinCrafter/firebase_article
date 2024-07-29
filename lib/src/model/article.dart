@@ -22,9 +22,9 @@ class Article implements Docable {
   factory Article.fromDoc(Map<String, dynamic> doc) {
     List<Map<String, dynamic>> relations = <Map<String, dynamic>>[];
 
-    final mapsField = doc[relationsKey] as List<dynamic>;
-    relations
-        .addAll(mapsField.cast<Map<String, dynamic>>()); //doc[relationsKey]
+    final mapsField = doc[relationsKey] as List<dynamic>?;
+    relations.addAll(
+        mapsField?.cast<Map<String, dynamic>>() ?? []); //doc[relationsKey]
     return Article(
       id: doc[idKey],
       title: doc[titleKey],
