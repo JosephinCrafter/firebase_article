@@ -49,16 +49,48 @@ class ArticlesRepository<T extends Article> {
     return memoryCachedArticles[articleId];
   }
 
+  
+  Future<T?> getArticleByPath({required String path}) async {
+    /// Try to get the article from memory
+    String articleId = getIdFromPath(path);
+    T? article = retrieveFromCache(articleId);
+    if (article != null) {
+      return Future.value(article);
+    }
+
+    // else, get the article from firebase.
+    DocumentSnapshot<Map<String, dynamic>> result =
+        await getRawDocFromPath(path);
+    Map<String, dynamic>? map = result.data();
+    if (map == null) {
+      return null;
+    }
+
+    /// In case of success, build the article  object.
+    article = buildArticleFromDoc(map);
+
+    /// add it to cache
+    memoryCachedArticles.addAll({articleId: article});
+
+    return article;
+  }
+
+
   /// Return a fully formed article given it's articleTitle
-  Future<T?> getArticleById({required String articleId}) async {
+  Future<T?> getArticleById(
+      {required String articleId, String? collection}) async {
     // If [articleTitle] is a [memoryCachedArticles], then return the article in it
     T? articleInMemory = retrieveFromCache(articleId);
     if (articleInMemory != null) {
       return articleInMemory;
     }
-
+    DocumentSnapshot<Map<String, dynamic>> result;
     // else, get the article from firebase.
-    DocumentSnapshot<Map<String, dynamic>> result = await getRawDoc(articleId);
+    if (collection != null) {
+      result = await getRawDocFromPath("/$collection/$articleId");
+    } else {
+      result = await getRawDoc(articleId);
+    }
     Map<String, dynamic>? map = result.data();
     if (map == null) {
       return null;
@@ -110,7 +142,7 @@ class ArticlesRepository<T extends Article> {
     if (setup == null) {
       return null;
     } else {
-      return highlightedArticlePath =  setup[RepoSetUp.highLight];
+      return highlightedArticlePath = setup[RepoSetUp.highLight];
     }
   }
 
@@ -135,31 +167,6 @@ class ArticlesRepository<T extends Article> {
   /// It takes the last string after '\'.
   String getIdFromPath(String path) {
     return path.split('/').last;
-  }
-
-  Future<T?> getArticleByPath({required String path}) async {
-    /// Try to get the article from memory
-    String articleId = getIdFromPath(path);
-    T? article = retrieveFromCache(articleId);
-    if (article != null) {
-      return Future.value(article);
-    }
-
-    // else, get the article from firebase.
-    DocumentSnapshot<Map<String, dynamic>> result =
-        await getRawDocFromPath(path);
-    Map<String, dynamic>? map = result.data();
-    if (map == null) {
-      return null;
-    }
-
-    /// In case of success, build the article  object.
-    article = buildArticleFromDoc(map);
-
-    /// add it to cache
-    memoryCachedArticles.addAll({articleId: article});
-
-    return article;
   }
 
   /// return a map string object containing setup

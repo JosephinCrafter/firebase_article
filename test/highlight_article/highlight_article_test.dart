@@ -79,7 +79,7 @@ void main() {
         },
       );
 
-      test(
+      test( 
         'Getting Highlight collection with id',
         () async {
           fakeFirestore
@@ -88,7 +88,7 @@ void main() {
 
           String? highlightCollection = await repo.getHighlightedCollection();
 
-          expect(highlightCollection, '/articles');
+          expect(highlightCollection, 'articles');
         },
       );
     },
