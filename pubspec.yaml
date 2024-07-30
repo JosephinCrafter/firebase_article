@@ -30,7 +30,7 @@ description: "Firebase article help setup blog articles in firebase firestore an
                   - cover_image.jpg
                   - ...
                 "
-version: 1.1.1
+version: 1.1.2
 homepage: none
 
 environment:
