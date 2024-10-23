@@ -79,30 +79,40 @@ class ArticlesRepository<T extends Article> {
   /// Return a fully formed article given it's articleTitle
   Future<T?> getArticleById(
       {required String articleId, String? collection}) async {
-    // If [articleTitle] is a [memoryCachedArticles], then return the article in it
-    T? articleInMemory = retrieveFromCache(articleId);
-    if (articleInMemory != null) {
+    try{
+      // Get the article from firebase.
+      DocumentSnapshot<Map<String, dynamic>> result;
+      if (collection != null) {
+        result = await getRawDocFromPath("/$collection/$articleId");
+      } else {
+        result = await getRawDoc(articleId);
+      }
+      Map<String, dynamic>? map = result.data();
+      if (map == null) {
+        return null;
+      }
+  
+      // build [articleInMemory] from the firebase result.
+      articleInMemory = buildArticleFromDoc(map);
+  
+      // add it to memoryCachedArticles
+      memoryCachedArticles.addAll({articleId: articleInMemory});
+  
       return articleInMemory;
+    } catch (e) {
+       /// pass error
+        /// try to get it from cache
+      try{
+        // If [articleTitle] is a [memoryCachedArticles], then return the article in it
+        T? articleInMemory = retrieveFromCache(articleId);
+        if (articleInMemory != null) {
+          return articleInMemory;
+        }
+      } catch (e){
+        // A problem occured
+        return null;
+      }
     }
-    DocumentSnapshot<Map<String, dynamic>> result;
-    // else, get the article from firebase.
-    if (collection != null) {
-      result = await getRawDocFromPath("/$collection/$articleId");
-    } else {
-      result = await getRawDoc(articleId);
-    }
-    Map<String, dynamic>? map = result.data();
-    if (map == null) {
-      return null;
-    }
-
-    // build [articleInMemory] from the firebase result.
-    articleInMemory = buildArticleFromDoc(map);
-
-    // add it to memoryCachedArticles
-    memoryCachedArticles.addAll({articleId: articleInMemory});
-
-    return articleInMemory;
   }
 
   @Deprecated("Use getHighlighted instead")
