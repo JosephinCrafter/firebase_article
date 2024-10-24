@@ -49,7 +49,6 @@ class ArticlesRepository<T extends Article> {
     return memoryCachedArticles[articleId];
   }
 
-  
   Future<T?> getArticleByPath({required String path}) async {
     /// Try to get the article from memory
     String articleId = getIdFromPath(path);
@@ -75,41 +74,43 @@ class ArticlesRepository<T extends Article> {
     return article;
   }
 
-
   /// Return a fully formed article given it's articleTitle
   Future<T?> getArticleById(
       {required String articleId, String? collection}) async {
-    try{
+    late T? article;
+    try {
       // Get the article from firebase.
       DocumentSnapshot<Map<String, dynamic>> result;
+
       if (collection != null) {
         result = await getRawDocFromPath("/$collection/$articleId");
       } else {
         result = await getRawDoc(articleId);
       }
-      Map<String, dynamic>? map = result.data();
-      if (map == null) {
+      Map<String, dynamic>? doc = result.data();
+      if (doc == null) {
         return null;
       }
-  
+
       // build [articleInMemory] from the firebase result.
-      articleInMemory = buildArticleFromDoc(map);
-  
+      article = buildArticleFromDoc(doc);
+
       // add it to memoryCachedArticles
-      memoryCachedArticles.addAll({articleId: articleInMemory});
-  
-      return articleInMemory;
+      memoryCachedArticles.addAll({articleId: article});
+
+      return article;
     } catch (e) {
-       /// pass error
-        /// try to get it from cache
-      try{
+      Logger().w("Error Fetching article from network: $e");
+
+      /// try to get it from cache
+      try {
         // If [articleTitle] is a [memoryCachedArticles], then return the article in it
-        T? articleInMemory = retrieveFromCache(articleId);
-        if (articleInMemory != null) {
-          return articleInMemory;
+        article = retrieveFromCache(articleId);
+        if (article != null) {
+          return article;
         }
-      } catch (e){
-        // A problem occured
+      } catch (e) {
+        // A problem occurred
         return null;
       }
     }

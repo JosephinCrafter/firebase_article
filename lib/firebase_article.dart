@@ -5,8 +5,10 @@ import 'dart:developer' as developer;
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:logger/logger.dart';
 
-import 'package:firebase_article/src/firebase_constants.dart';
+import 'src/firebase_constants.dart';
+
 
 export 'src/view/article_view.dart';
 

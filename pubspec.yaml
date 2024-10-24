@@ -30,7 +30,7 @@ description: "Firebase article help setup blog articles in firebase firestore an
                   - cover_image.jpg
                   - ...
                 "
-version: 1.2.0
+version: 1.2.1
 homepage: none
 
 environment:
@@ -45,6 +45,7 @@ dependencies:
   firebase_storage: ^12.1.1
   json_annotation: ^4.8.1
   markdown_widget: ^2.3.2+3
+  logger: ^2.4.0
 
 dev_dependencies:
   flutter_test:

@@ -34,7 +34,7 @@ void main() {
     },
   );
   test(
-    'getArticleById',
+    'getArticleById fetch article form firestore',
     () async {
       FirebaseFirestore fakeFirestore = FakeFirebaseFirestore();
 
@@ -57,7 +57,7 @@ void main() {
       );
 
       Article? article = await repo.getArticleById(
-          articleId: 'test_article', collection: "content");
+          articleId: 'test_article',);
 
       expect(article != null, true);
     },

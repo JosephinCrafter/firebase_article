@@ -37,9 +37,9 @@ dependencies:
   cupertino_icons: ^1.0.2
   firebase_article:
     path: ../.
-  firebase_core: ^2.24.2
-  cloud_firestore: ^4.14.0
-  firebase_storage: ^11.6.0
+  firebase_core: ^3.2.0
+  cloud_firestore: ^5.1.0
+  firebase_storage: ^12.1.1
   # markdown_widget: ^2.3.2+3
   # firebase_core: ^2.25.4
   # cloud_firestore: ^4.15.4
